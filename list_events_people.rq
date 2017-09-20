@@ -1,0 +1,9 @@
+PREFIX schema: <http://schema.org/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT ?event ?person
+FROM <http://data.cubiss.nl/genealogy/>
+FROM <http://data.cubiss.nl/genealogyclean/>
+WHERE {
+  bind(?_person_iri as ?person)
+  ?event schema:attendee/schema:attendee/owl:sameAs ?person .
+}
