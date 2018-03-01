@@ -14,9 +14,9 @@ WHERE {
  { select distinct (min(?o) as ?person) (count(distinct ?o) as ?count1) (count(distinct ?role) as ?count2) {
    ?s a schema:Person ;
       schema:familyName ?_lastname ;
-      owl:sameAs ?o .
+      owl:sameAs? ?o .
    ?o ^schema:attendee/schema:roleName ?role
- } group by ?s }
+ } group by ?s having (count(distinct ?o) > 1) }
  ?person a schema:Person ;
     schema:familyName ?last_name ;
     schema:givenName ?first_name .
