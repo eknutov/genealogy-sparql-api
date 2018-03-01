@@ -8,19 +8,24 @@ SELECT distinct ?person
 ?birth_date ?birth_place
 #?attendee_role ?event_attendee_name
 #?same_person
+#?count1 ?count2 ?rank
 
 WHERE {
+ { select distinct (min(?o) as ?person) (count(distinct ?o) as ?count1) (count(distinct ?role) as ?count2) {
+   ?s a schema:Person ;
+      schema:familyName ?_lastname ;
+      owl:sameAs ?o .
+   ?o ^schema:attendee/schema:roleName ?role
+ } group by ?s }
  ?person a schema:Person ;
     schema:familyName ?last_name ;
     schema:givenName ?first_name .
 
-    OPTIONAL {?person schema:birthPlace [rdfs:label ?birth_place] .}
-    OPTIONAL {?person schema:birthDate ?birth_date_ .}
-    #optional {?person schema:attendee ?event_attendee_name . }
-    #optional {?person schema:roleName ?attendee_role . }
-    BIND(xsd:date(?birth_date_) as ?birth_date) .
-
-    FILTER (?last_name = ?_lastname)
+  OPTIONAL {?person schema:birthPlace [rdfs:label ?birth_place] .}
+  OPTIONAL {?person schema:birthDate ?birth_date_ .}
+  #optional {?person schema:attendee ?event_attendee_name . }
+  #optional {?person schema:roleName ?attendee_role . }
+  BIND(xsd:date(?birth_date_) as ?birth_date) .
+  BIND(?count1 * ?count2 as ?rank)
 }
-#order by ?last_name
-ORDER BY ?birth_date
+ORDER BY desc(?rank) desc(?count2) desc(?count1)
