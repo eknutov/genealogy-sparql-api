@@ -1,0 +1,44 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX schema: <http://schema.org/>
+
+SELECT distinct ?person ?same_person
+?last_name ?first_name
+?birth_date ?birth_place
+?event ?event_type
+#?count1 ?count2 ?rank
+
+WHERE {
+
+ { select distinct (min(?o) as ?person) (count(distinct ?o) as ?count1) (count(distinct ?role) as ?count2) {
+   ?s a schema:Person ;
+      schema:familyName ?_lastname ;
+      owl:sameAs? ?o .
+
+   ?o ^schema:attendee/schema:roleName ?role .
+
+ } group by ?s having (count(distinct ?o) > 1) }
+
+ ?person a schema:Person ;
+    schema:familyName ?last_name ;
+    schema:givenName ?first_name ;
+  owl:sameAs? ?same_person .
+
+  ?event a schema:Event ;
+      rdfs:label ?event_name ;
+      #rdf:type [rdfs:label ?event_type] ;
+      rdf:type ?event_type ;
+      schema:attendee [schema:attendee ?same_person].
+
+  OPTIONAL {?person schema:birthPlace [rdfs:label ?birth_place] .}
+  OPTIONAL {?person schema:birthDate ?birth_date_ .}
+  #optional {?person schema:attendee ?event_attendee_name . }
+  #optional {?person schema:roleName ?attendee_role . }
+  BIND(xsd:date(?birth_date_) as ?birth_date) .
+  BIND(?count1 * ?count2 as ?rank)
+
+  FILTER (?event_type != <http://schema.org/Event>)
+}
+ORDER BY desc(?rank) desc(?count2) desc(?count1)
+#limit 100
