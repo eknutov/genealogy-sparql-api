@@ -7,7 +7,6 @@ SELECT distinct ?person ?same_person
 ?last_name ?first_name
 ?birth_date ?birth_place
 ?event ?event_type
-#?count1 ?count2 ?rank
 
 WHERE {
 
@@ -27,18 +26,14 @@ WHERE {
 
   ?event a schema:Event ;
       rdfs:label ?event_name ;
-      #rdf:type [rdfs:label ?event_type] ;
       rdf:type ?event_type ;
       schema:attendee [schema:attendee ?same_person].
 
   OPTIONAL {?person schema:birthPlace [rdfs:label ?birth_place] .}
   OPTIONAL {?person schema:birthDate ?birth_date_ .}
-  #optional {?person schema:attendee ?event_attendee_name . }
-  #optional {?person schema:roleName ?attendee_role . }
   BIND(xsd:date(?birth_date_) as ?birth_date) .
   BIND(?count1 * ?count2 as ?rank)
 
   FILTER (?event_type != <http://schema.org/Event>)
 }
 ORDER BY desc(?rank) desc(?count2) desc(?count1)
-#limit 100
